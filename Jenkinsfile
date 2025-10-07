@@ -49,7 +49,9 @@ pipeline {
     post {
         always {
             echo 'Cleaning up workspace...'
+            node {
             cleanWs()
+        }
         }
         success {
             echo 'Terraform deployment completed successfully ✅'
