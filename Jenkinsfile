@@ -47,9 +47,6 @@ pipeline {
     }
 
     post {
-        always {
-        
-        }
         success {
             echo 'Terraform deployment completed successfully ✅'
         }
