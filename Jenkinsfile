@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     environment {
-        ARM_CLIENT_ID       = credentials('azure-client-id')
-        ARM_CLIENT_SECRET   = credentials('azure-client-secret')
-        ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
-        ARM_TENANT_ID       = credentials('azure-tenant-id')
+        ARM_CLIENT_ID       = credentials('azure-client-id')        // Service Principal App ID
+        ARM_CLIENT_SECRET   = credentials('azure-client-secret')    // Service Principal Password
+        ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')  // Azure Subscription ID
+        ARM_TENANT_ID       = credentials('azure-tenant-id')        // Azure Tenant ID
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 echo 'Fetching Terraform code from Git...'
@@ -19,7 +20,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 echo 'Initializing Terraform...'
-                dir('terraform') {  // run inside the terraform folder
+                dir('terraform/env') {
                     sh 'terraform init'
                 }
             }
@@ -28,8 +29,8 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 echo 'Planning Terraform deployment...'
-                dir('terraform') {
-                    sh 'terraform plan -out=tfplan'
+                dir('terraform/env') {
+                    sh 'terraform plan -var-file="terraform.tfvars" -out=tfplan'
                 }
             }
         }
@@ -37,8 +38,8 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 input message: 'Apply Terraform plan?', ok: 'Deploy'
-                dir('terraform') {
-                    sh 'terraform apply -auto-approve tfplan'
+                dir('terraform/env') {
+                    sh 'terraform apply -var-file="terraform.tfvars" -auto-approve tfplan'
                 }
             }
         }
@@ -46,7 +47,7 @@ pipeline {
         stage('Post-Deployment Test') {
             steps {
                 echo 'Running post-deployment checks...'
-                dir('terraform') {
+                dir('terraform/env') {
                     sh 'terraform output'
                 }
             }
