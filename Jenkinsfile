@@ -20,7 +20,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 echo 'Initializing Terraform...'
-                dir('terraform/env') {
+                dir('terraform/') {
                     sh 'terraform init'
                 }
             }
@@ -29,8 +29,8 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 echo 'Planning Terraform deployment...'
-                dir('terraform/env') {
-                    sh 'terraform plan -var-file="terraform.tfvars" -out=tfplan'
+                dir('terraform/env/dev/') {
+                    sh 'terraform plan -var-file="./terraform.tfvars" -out=tfplan'
                 }
             }
         }
@@ -38,8 +38,8 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 input message: 'Apply Terraform plan?', ok: 'Deploy'
-                dir('terraform/env') {
-                    sh 'terraform apply -var-file="terraform.tfvars" -auto-approve tfplan'
+                dir('terraform/env/dev/') {
+                    sh 'terraform apply -var-file="./terraform.tfvars" -auto-approve tfplan'
                 }
             }
         }
